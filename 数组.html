@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<body>
+
+</body>
+
+<script src="jquery-1.11.1.min.js"></script>
+<script>
+$(function(){
+	var arr = new Array();;
+	for(var i = 0 ; i < 15; i++ )
+	{
+		arr[i] = new Array();
+		for(var j = 0 ; j < 10; j++ )
+		{
+			arr[i][j] = 0;
+		}
+	}
+	console.log(arr);
+
+
+
+	
+	var random = 5 ; 
+	var arr1 = [100,200,300];
+	var arr2 =[[100],[200,300]];
+	var value = arr1[random];
+	for(var i = 0 ; i< arr2.length; i++)
+	{
+		for(var j = 0 ; j<arr2[i].length; j++)
+		{
+			if(value == arr2[i][j])
+			{
+				alert(i);
+			}
+		}
+	}
+})
+</script>
+</html>

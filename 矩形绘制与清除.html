@@ -1,0 +1,25 @@
+<html>
+<body>
+<canvas id='cvs' width='400' height='300'>you are a outer man.</canvas>
+</body>
+<script>
+window.onload = function(){
+	var canvas = document.getElementById("cvs");
+	if(canvas.getContext)
+	{
+		var context = canvas.getContext("2d");
+		//绘制边框
+		context.strokeStyle ="blue"
+		context.strokeRect(0,0,100,100);
+		//绘制矩形
+		context.fillStyle= "orange";
+		context.fillRect(3,3,94,94);
+		//清除矩形区域
+		context.clearRect(6,6,88,88);
+		//绘制矩形2
+		context.fillStyle = "red";
+		context.fillRect(50,50,100,100);
+	}
+}
+</script>
+</html>

@@ -1,0 +1,26 @@
+<html>
+<head>
+</head>
+<body>
+<div id = "div1">
+<span id = "span1">
+<a href="#" id  = "a1">click me</a>
+</span>
+</div>
+</body>
+<script src="jquery-1.11.1.min.js"></script>
+<script>
+$(function(){
+	$("body").click(function(){console.log("body click")});
+	$("document").click(function(){console.log("document click")});
+	$("#a1").click(function(){console.log("a1 click.")});
+	$("#span1").click(function(){console.log("span1 click")});
+	$("#div1").click(function(){
+		console.log("div1 click");
+		console.log("invoke event.stopPropagation()")
+		event.stopPropagation();
+	});
+	$("window").click(function(){console.log("window click")});
+})
+</script>
+</html>

@@ -1,0 +1,60 @@
+<html>
+<head>
+<style>
+.center
+{
+	margin:0 auto;
+	width:280px;
+	height:20px;
+}
+.left
+{
+	float:left;
+	height:20px;
+}
+.right
+{
+float:right;
+width:200px;
+height:20px;
+border-style:solid;
+border-width: 1px;
+border-color: blue;
+}
+#jdt{
+	width:0px;
+	height:20px;
+	background:blueviolet;
+	text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="center">
+<div class="left"><span>进度条:</span></div>
+<div class="right"><div id="jdt"></div></div>
+</div>
+</body>
+<!--
+$("#jdt").animate({
+    width: 200
+  }, 5000,function(){$("#jdt").text("完成.")});-->
+<script src="jquery-1.11.1.min.js"></script>
+<script>
+$(function(){
+var interval = setInterval(increaseWidth,100);
+var width = 0;
+function increaseWidth()
+{
+	width = width + 2;
+	$("#jdt").text(width/2+"%");
+	$("#jdt").css("width",width);
+	if(width >= 200)
+	{
+		$("#jdt").text("完成.");
+		clearInterval(interval);
+	}
+}
+})
+</script>
+</html>

@@ -1,0 +1,27 @@
+<html>
+<head>
+</head>
+<body>
+<span id="jq">i am a span.</span>
+</body>
+<script>
+function $(func)
+{
+	if(typeof(func) == "function")
+	{
+		func();
+		return;
+	}
+	var jqueryObject = document.getElementById(arguments[0]);
+	jqueryObject.getInnerHtml = function(){
+		alert("$(\"jq\").getInnerHtml():"+jqueryObject.innerHTML);
+	}
+	return jqueryObject;
+}
+
+$(function(){
+	alert("hello jquery");
+});
+$("jq").getInnerHtml();
+</script>
+</html>
