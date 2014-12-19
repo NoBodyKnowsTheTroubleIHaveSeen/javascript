@@ -66,7 +66,7 @@ function initArray()
 		lists[x] = new Array();
 		for(var y = 0 ; y < 10; y++ )
 		{
-			lists[x][y] = 0;
+			lists[x][y] = false;
 		}
 	}
 }
@@ -140,7 +140,7 @@ function left(){
 }
 //向右移动
 function right(){ 
-	if(	rightCheck())
+	if(rightCheck())
 	{
 		$(".moving").each(function(){
 			var right = parseInt($(this).css("left"))+22
@@ -150,7 +150,7 @@ function right(){
 }
 //向下
 function down(){
-	if(	downCheck())
+	if(downCheck())
 	{
 		$(".moving").each(function(){
 			var top = parseInt($(this).css("top"))+22;
@@ -161,18 +161,20 @@ function down(){
 	{
 		console.log("-------begin----------")
 		console.log($(".moving").length);
-		console.log(lists.join(" |"))
+		console.log(lists.join(" |"));
 		$(".moving").each(function(){
 			 var x = parseInt($(this).css("left"))/22;
 			 var y = (330 - parseInt($(this).css("top")))/22-1;
-			 lists[y][x] = 1;
-			 console.log("lists["+y+"]["+x+"]=1")
 			 $(this).removeClass("moving");
 			 $(this).addClass("row"+y);
+			 lists[y][x] = true;
+ 			 console.log("lists["+y+"]["+x+"]=true");
+ 	 		 console.log(lists.join(" |"));
+
 		});
-		console.log("执行完each方法：")
+		console.log("执行完each方法：");
 		console.log(lists.join(" |"));
-		rowCheck();
+		rowCheck();	
 		console.log("执行完rowCheck方法：");
 		console.log(lists.join(" |"));
 		console.log("-----------end---------");
@@ -247,7 +249,7 @@ function leftCheck(){
 			var left = parseInt($(this).css("left"));
 			var x = left/22-1;
 			var y =(330 - parseInt($(this).css("top")))/22-1;
-			if(lists[y][x] == 1 || left == 0)
+			if(lists[y][x] == true || left == 0)
 			{
 				leftEnable = false;
 			}
@@ -261,7 +263,7 @@ function rightCheck()
 			var left = parseInt($(this).css("left"));
 			var x = left/22+1;
 			var y =(330 - parseInt($(this).css("top")))/22-1;
-			if(lists[y][x] == 1 || left == 198)
+			if(lists[y][x] == true || left == 198)
 			{
 				rightEnable = false;
 			}
@@ -274,7 +276,7 @@ function downCheck()
 	$(".moving").each(function(){
 			var x = parseInt($(this).css("left"))/22;
 			var y =(330 - parseInt($(this).css("top")))/22 - 2;
-			if(y < 0 || lists[y][x] == 1)
+			if(y < 0 || lists[y][x] == true)
 			{
 				downEnable = false;
 			}
@@ -288,7 +290,7 @@ function changeCheck(pointLeft,pointTop,p)
 		var position = parseInt(p[i],16);
 		var x = position%4+pointLeft;
 		var y = parseInt(position/4)+pointTop;
-		if(lists[14-y][x]==1 || x < 0 || y<0 || x >9 || y >14)
+		if(lists[14-y][x]== true || x < 0 || y<0 || x >9 || y >14)
 		{
 			return false;
 		}
@@ -307,7 +309,7 @@ function rowCheck()
 		count = 0;
 		for(var x = 0; x < 10 ; x++)
 		{
-			if(lists[y][x] == 0)
+			if(lists[y][x] == false)
 			{
 				 break;
 			}
@@ -316,7 +318,6 @@ function rowCheck()
 		//整行都有数据，进行消除
 		if(count == 10)
 		{
-			console.log("消除");
 			eliminateLine++;
 			for(var i = y ; i < lists.length -1; i++)
 			{
@@ -325,7 +326,7 @@ function rowCheck()
 			//最后一行置为0
 			for(var i = 0 ; i<10 ; i++)
 			{
-				lists[14][i] = 0;
+				lists[14][i] = false;
 			}
 			var row = ".row"+y;
 			//移除当前行
@@ -345,7 +346,6 @@ function rowCheck()
 					$(this).addClass(downRow);
 				})
 			}
-			console.log("消除后："+lists.join(" |"));
 		}
 	}
 
@@ -371,7 +371,7 @@ function rowCheck()
 function gameIsOver(){
 	for(var x = 0 ; x <10 ; x++)
 	{
-		if(lists[14][x] == 1)	
+		if(lists[14][x] == true)	
 		{
 			return true;
 		}
