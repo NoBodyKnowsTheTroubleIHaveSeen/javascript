@@ -47,16 +47,17 @@
 <script src="jquery-1.11.1.min.js"></script>
 <script>
 $(function(){
-//代表方块的形状
-var elements=[["1"],["12","15"],["156","125","256","126"],["159d","0123"],["159a","2456","126a","0124"],["0125","1456","256a","1569"],["1256"]];
-var nextPositions;
-var nowPositions;
-var next;
-var now;
+//二位数组，表示方块占的位置集合
 var lists = new Array();
-var leftEnable = true;
-var rightEnable = true;
-var downEnable = true;
+//形状列表
+var elements=[["1"],["12","15"],["156","125","256","126"],["159d","0123"],["159a","2456","126a","0124"],["0125","1456","256a","1569"],["1256"]];
+//当前形状
+var nowShape;
+var nextShape;
+//当前所在数组位置
+var nowPosition;
+var nextPosition;
+var score = 0;
 //初始化，填充数组全部为0
 function initArray()
 {
@@ -69,15 +70,15 @@ function initArray()
 		}
 	}
 }
-//获得下一个随机数代表的元素所在的数组位置。
+//获得下一个随机数代表的元素在形状列表的位置。
 function getNext()
 {
-	//生成随机数，范围1-18
+	//生成随机数，范围1-18,代表18个方块形状
 	var random = parseInt(18*Math.random())+1;
 	var sum = 0;
 	var x = 0;
 	var y = 0;
-	//找到该随机数的位置，获得在第几个数组。
+	//获得该随机数表示形状列表的位置
 	for(var i = 0 ; i < elements.length;i++)
 	{
 		if(sum+elements[i].length >= random)
@@ -89,33 +90,37 @@ function getNext()
 		sum += elements[i].length;
 	}
 }
-//创建右侧元素
-function createRight()
+//更新右侧形状
+function updateRight()
 {
-	next = getNext();
-	//取出位置
-	nextPositions = elements[next[0]][next[1]];
+	//取出下一个随机数在数组中的位置
+	nextPosition = getNext();
+	//取出数组中的值，代表对应的形状
+	nextShape = elements[nextPosition[0]][nextPosition[1]];
+	//清空右侧区域
 	$("#right").empty();
-	for(var i = 0 ; i < nextPositions.length ; i++)
+	//在右侧填充形状
+	for(var i = 0 ; i < nextShape.length ; i++)
 	{
-		var position = parseInt(nextPositions[i],16);
+		var position = parseInt(nextShape[i],16);
 		var left = (position%4)*22;
 		var top = parseInt(position/4)*22;
 		$("#right").append("<div class='element' style='left:"+left+";top:"+top+";'></div>")
 	}
 }
-//创建左侧元素
-function createLeft(l,t,isNew)
+//更新左侧形状,参数l,t分别表示左、上的偏移量
+function updateLeft(l,t,isNew)
 {
+	//是否为新增的
 	if(isNew)
 	{
-		now = next;
-		nowPositions = nextPositions;
+		nowPosition = nextPosition;
+		nowShape = nextShape;
 		l = l +4 ;
 	}
-	for(var i = 0 ; i < nowPositions.length ; i++)
+	for(var i = 0 ; i < nowShape.length ; i++)
 	{
-		position = parseInt(nowPositions[i],16);
+		var position = parseInt(nowShape[i],16);
 		var x = position%4;
 		var y = parseInt(position/4);
 		var left = (x+l)*22;
@@ -125,32 +130,27 @@ function createLeft(l,t,isNew)
 }
 //向左移动
 function left(){
-	leftCheck();
-	if(leftEnable)
+	if(	leftCheck())
 	{
 		$(".moving").each(function(){
 			var left = parseInt($(this).css("left"))-22;
 			$(this).css("left",left);
 		})
-		rightEnable = true;
 	}
 }
 //向右移动
 function right(){ 
-	rightCheck();
-	if(rightEnable)
+	if(	rightCheck())
 	{
 		$(".moving").each(function(){
 			var right = parseInt($(this).css("left"))+22
 			$(this).css("left",right);
 		})
-		leftEnable = true;
 	}
 }
 //向下
 function down(){
-	downCheck();
-	if(downEnable)
+	if(	downCheck())
 	{
 		$(".moving").each(function(){
 			var top = parseInt($(this).css("top"))+22;
@@ -159,29 +159,42 @@ function down(){
 	}
 	else
 	{
+		console.log("-------begin----------")
+		console.log($(".moving").length);
+		console.log(lists.join(" |"))
 		$(".moving").each(function(){
 			 var x = parseInt($(this).css("left"))/22;
 			 var y = (330 - parseInt($(this).css("top")))/22-1;
 			 lists[y][x] = 1;
+			 console.log("lists["+y+"]["+x+"]=1")
 			 $(this).removeClass("moving");
-			 $(this).addClass("line"+y);
+			 $(this).addClass("row"+y);
 		});
-		lineCheck();
-		createLeft(0,0,true);
-		createRight();
-		leftEnable = true;
-		rightEnable = true;
-		downEnable = true;
+		console.log("执行完each方法：")
+		console.log(lists.join(" |"));
+		rowCheck();
+		console.log("执行完rowCheck方法：");
+		console.log(lists.join(" |"));
+		console.log("-----------end---------");
+		if(gameIsOver())
+		{
+			alert("gameOver");
+			console.log("---------------------gameOver-------------------")
+			clearInterval(intervala);
+		}
+		updateLeft(0,0,true);
+		updateRight();
 	}
 }
-
+//点击改变按钮
 function change()
 {
 	var moving = $(".moving");
 	var left = parseInt(moving.css("left"));
 	var top = parseInt(moving.css("top"));
-	var x = parseInt( moving.attr("x"));
-	var y = parseInt( moving.attr("y"));
+	var x = parseInt(moving.attr("x"));
+	var y = parseInt(moving.attr("y"));
+	//确定原点
 	var pointLeft = left/22 - x;
 	var pointTop = top/22 -y;
 	if(pointLeft<0)
@@ -192,18 +205,16 @@ function change()
 	{
 		pointTop = 0;
 	}
-	var length = elements[now[0]].length;
-	now[1] = (now[1]+1)%length;
-	var p = elements[now[0]][now[1]];
+	var length = elements[nowPosition[0]].length;
+	nowPosition[1] = (nowPosition[1]+1)%length;
+	var p = elements[nowPosition[0]][nowPosition[1]];
 	if(changeCheck(pointLeft,pointTop,p))
 	{
-		nowPositions = elements[now[0]][now[1]];
+		nowShape = elements[nowPosition[0]][nowPosition[1]];
 		$(".moving").each(function(){
 			$(this).remove();
 		})
-		createLeft(pointLeft,pointTop,false);
-		leftEnable = true;
-		rightEnable = true;
+		updateLeft(pointLeft,pointTop,false);
 	}
 }
 //按键
@@ -231,6 +242,7 @@ $(document).keydown(function(event){
 
 })
 function leftCheck(){
+	var leftEnable = true;
 	$(".moving").each(function(){
 			var left = parseInt($(this).css("left"));
 			var x = left/22-1;
@@ -240,9 +252,11 @@ function leftCheck(){
 				leftEnable = false;
 			}
 		})
+	return leftEnable;
 }
 function rightCheck()
 {
+	var rightEnable = true;
 	$(".moving").each(function(){
 			var left = parseInt($(this).css("left"));
 			var x = left/22+1;
@@ -252,9 +266,11 @@ function rightCheck()
 				rightEnable = false;
 			}
 		})
+	return rightEnable;
 }
 function downCheck()
 {
+	var downEnable = true;
 	$(".moving").each(function(){
 			var x = parseInt($(this).css("left"))/22;
 			var y =(330 - parseInt($(this).css("top")))/22 - 2;
@@ -262,25 +278,30 @@ function downCheck()
 			{
 				downEnable = false;
 			}
-		})
+	})
+	return downEnable;
 }
 function changeCheck(pointLeft,pointTop,p)
 {
 	for(var i = 0 ; i < p.length ; i++)
 	{
-		position = parseInt(p[i],16);
+		var position = parseInt(p[i],16);
 		var x = position%4+pointLeft;
 		var y = parseInt(position/4)+pointTop;
-		if(lists[y][x]==1 || x < 0 || y<0 || x >9 || y >14)
+		if(lists[14-y][x]==1 || x < 0 || y<0 || x >9 || y >14)
 		{
 			return false;
 		}
 	}
 	return true;
 }
-function lineCheck()
+//行检查
+function rowCheck()
 {
+	//表示一行中的数据个数
 	var count;
+	var eliminateLine = 0;
+	//从上往下遍历，检查
 	for(var y = lists.length -1; y >= 0 ; y--)
 	{
 		count = 0;
@@ -292,41 +313,77 @@ function lineCheck()
 			}
 			count++;
 		}
+		//整行都有数据，进行消除
 		if(count == 10)
 		{
+			console.log("消除");
+			eliminateLine++;
 			for(var i = y ; i < lists.length -1; i++)
 			{
 				lists[i] = lists[i+1];
 			}
+			//最后一行置为0
 			for(var i = 0 ; i<10 ; i++)
 			{
-				lists[14][i] =0;
+				lists[14][i] = 0;
 			}
-			var line = ".line"+y;
-			$(line).each(function(){
+			var row = ".row"+y;
+			//移除当前行
+			$(row).each(function(){
 				$(this).remove();
 			})
-			for(var i = y + 1 ; i < lists.length;i++)
+			//当前行及上方的行，每行下降一行
+			for(var i = y + 1 ; i < lists.length - 1;i++)
 			{
-				var lineClass = ".line"+i;
-				var line = "line"+i;
-				var downLine = "line" +( i - 1);
-				$(lineClass).each(function()
+				var rowClass = ".row"+i;
+				var row = "row"+i;
+				var downRow = "row" +( i - 1);
+				$(rowClass).each(function()
 				{
 					$(this).css("top",parseInt($(this).css("top"))+22);
-					$(this).removeClass(line);
-					$(this).addClass(downLine);
+					$(this).removeClass(row);
+					$(this).addClass(downRow);
 				})
 			}
+			console.log("消除后："+lists.join(" |"));
 		}
 	}
+
+	switch(eliminateLine)
+	{
+		case 1:
+			score += 100;
+			break;
+		case 2:
+			score += 300;
+			break;
+		case 3:
+			score += 500;
+			break;
+		case 4:
+			score += 1000;
+			break;
+		default :
+			break;
+	}
+	//console.log(score);
+}
+function gameIsOver(){
+	for(var x = 0 ; x <10 ; x++)
+	{
+		if(lists[14][x] == 1)	
+		{
+			return true;
+		}
+	}
+	return false;
 }
 function start(){
 	initArray();
-	createRight();
-	setTimeout(createLeft(0,0,true),1000);
-	createRight();
-	setInterval(down,1000);
+	updateRight();
+	setTimeout(updateLeft(0,0,true),1000);
+	updateRight();
+	intervala = setInterval(down,1000);
 }
 start();
 })
