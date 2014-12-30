@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#div1
+{
+	width:1000px;
+	height:500px;
+	background-color:orange;
+}
+#div2
+{
+	width:800px;
+	height:900px;
+	background-color:yellow;
+}
+#div3{
+	width:800px;
+	height:200px;
+	background-color:blue;
+}
+</style>
+</head>
+<body>
+<div id = "div1"></div>
+<div id = "div2"></div>
+<div id = "div3"></div>
+<input id="div4"/>
+<input type="text" pattern="\d+" name="text"/>
+<input type="number" min="5" max="100" step ="5"/>
+</body>
+<script src="jquery-1.11.1.min.js"></script>
+<script>
+$(function(){
+	console.log("屏幕宽度："+document.body.clientWidth);
+	console.log("屏幕高度："+document.body.clientHeight);
+
+	var  div4 = document.getElementById("div4");
+	//	div1.addEventListener("keyup",function(){console.log("keyup");},false);
+	//	div1.addEventListener("keydown",function(){console.log("keydown");},false);
+	div4.addEventListener("keypress",function(){
+		console.log("keypress");
+		var code = String.fromCharCode(event.charCode);
+		if(!/\d/.test(code))
+		{
+			event.preventDefault();
+		}
+	},false);
+	//当动态改变text中的数据时（使用js改变text或通过复制的方式改变text），会触发这个方法。
+	//对于onchange事件，需要文本值改变并且失去焦点。
+	div4.addEventListener("input",function(){
+		var str =$("#div4").val();
+		var newValue = str.replace(/[^0-9]/ig,"");
+		console.log(newValue);
+		$("#div4").val(newValue);
+	},false);
+	$("#div4").focus(function(){
+		 $(this).select();
+		 console.log(div4.selectionStart);
+		 console.log(div4.selectionEnd);
+	})
+	//需要点击div2
+	$("#div2").click(function(){
+		console.log("当前屏幕相对于页面的距离"+document.body.scrollLeft);
+		console.log("当前屏幕相对于页面的距离（0->scrollTop）"+document.body.scrollTop);
+		console.log("事件位置相对于浏览器窗口的X坐标值："+event.clientX);
+		console.log("事件位置相对于浏览器窗口的y坐标值："+event.clientY);
+		console.log("事件位置相对于页面的X坐标值："+event.pageX);
+		console.log("事件位置相对于页面的y坐标值："+event.pageY);
+		console.log("事件位置相对于整个屏幕的x坐标值"+event.screenX);
+		console.log("事件位置相对于整个屏幕的y坐标值"+event.screenY);
+		//键盘事件
+		if(event.ctrlKey)
+		{
+			console.log("ctrl");
+		}
+		
+		if(event.shiftKey)
+		{
+			console.log("shift");
+		}
+		
+		if(event.altKey)
+		{
+			console.log("alt");
+		}
+	})
+})
+</script>
+</html>
